@@ -64,8 +64,8 @@ async def main(params, car_brand,bot, chat_id_yossi):
                             TotalCheck = True
                 except (KeyError, ValueError):
                     pass
-    if count>0:
-        await send_message_async(bot, chat_id_yossi, f'New cars of type *{car_brand}*: {count}')
+    # if count>0:
+        # await send_message_async(bot, chat_id_yossi, f'New cars of type *{car_brand}*: {count}')
 
 
     for i in range(1):
@@ -106,7 +106,7 @@ async def main(params, car_brand,bot, chat_id_yossi):
                                 image_url=d['images'][image]['src']
                                 responseImage = requests.get(image_url)
                                 image_bytes = BytesIO(responseImage.content)
-                                #await bot.send_photo(chat_id=chat_id, photo=image_bytes)
+                                await bot.send_photo(chat_id=chat_id_yossi, photo=image_bytes)
                                 media_items.append(InputMediaPhoto(media=image_bytes))
                                 check=True
 
