@@ -174,11 +174,11 @@ if __name__ == "__main__":
     }
 
     checkNew1=loop.run_until_complete(main(params_toyota,"Toyota" ,bot,chat_id_yossi))
-    checkNew1_amit=loop.run_until_complete(main(params_toyota,"Toyota" ,bot,chat_id_yossi))
+    checkNew1_amit=loop.run_until_complete(main(params_toyota,"Toyota" ,bot,chat_id_amit))
     checkNew2=loop.run_until_complete(main(params_hyundai, "Hyundai",bot,chat_id_yossi))
-    checkNew2_amit=loop.run_until_complete(main(params_hyundai, "Hyundai",bot,chat_id_yossi))
+    checkNew2_amit=loop.run_until_complete(main(params_hyundai, "Hyundai",bot,chat_id_amit))
     checkNew3=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_yossi))
-    checkNew3_amit=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_yossi))
+    checkNew3_amit=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_amit))
 
     # if checkNew1==False and checkNew2==False and checkNew3==False and checkNew1_amit==False and checkNew2_amit==False and checkNew3_amit==False:
     #     loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין מכוניות חדשות*"))
