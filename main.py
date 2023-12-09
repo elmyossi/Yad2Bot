@@ -180,8 +180,8 @@ if __name__ == "__main__":
     checkNew3=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_yossi))
     checkNew3_amit=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_yossi))
 
-    if checkNew1==False and checkNew2==False and checkNew3==False and checkNew1_amit==False and checkNew2_amit==False and checkNew3_amit==False:
-        loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין מכוניות חדשות*"))
-        loop.run_until_complete(send_message_async(bot, chat_id_amit, "*אין מכוניות חדשות*"))
+    # if checkNew1==False and checkNew2==False and checkNew3==False and checkNew1_amit==False and checkNew2_amit==False and checkNew3_amit==False:
+    #     loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין מכוניות חדשות*"))
+    #     loop.run_until_complete(send_message_async(bot, chat_id_amit, "*אין מכוניות חדשות*"))
 
 
