@@ -179,6 +179,4 @@ if __name__ == "__main__":
     if checkNew1==False and checkNew2==False and checkNew3==False:
         loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין דירות חדשות*"))
 
-    loop.close()
-
 
