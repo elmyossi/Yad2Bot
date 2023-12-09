@@ -2,7 +2,7 @@ name: run Yad2search
 
 on:
   schedule:
-    - cron: '*/30 6-21 * * *'
+    - cron: '*/15 6-21 * * *'
 jobs:
   build:
     runs-on: ubuntu-latest
