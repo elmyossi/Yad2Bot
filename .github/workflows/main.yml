@@ -27,18 +27,6 @@ jobs:
       - name: run main.py
         run: python main.py
 
-      - name: print GITHUB_ACTOR
-        run: echo ${GITHUB_ACTOR}
-
-      - name: print GITHUB_REPOSITORY
-        run: echo ${GITHUB_REPOSITORY}
-
-      - name: print TOKEN
-        run: echo ${TOKEN}
-
-      - name: print github params
-        run: echo "https://${GITHUB_ACTOR}:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-
       - name: Commit and push
         run: |
           git config user.name "${GITHUB_ACTOR}"
