@@ -4,21 +4,20 @@ import time
 from urllib.parse import urlencode
 from telegram import Bot, InputMediaPhoto
 from io import BytesIO
-
-
+from datetime import datetime
 async def send_message_async(bot, chat_id, message_text):
     await bot.send_message(chat_id=chat_id, text=message_text, parse_mode='Markdown')
     print("Message sent successfully!")
 
 
-async def main(params, car_brand, bot, chat_id_yossi):
+async def main(params, car_brand, bot, chat_id):
     TotalCheck = False
     json_file_path = 'unique_date_added.json'
     try:
         with open(json_file_path, 'r') as json_file:
-            unique_date_added = set(json.load(json_file))
+            unique_date_added = json.load(json_file)
     except FileNotFoundError:
-        unique_date_added = set()
+        unique_date_added = []
 
     headers = {
         'Accept': 'application/json, text/plain, */*',
@@ -50,14 +49,14 @@ async def main(params, car_brand, bot, chat_id_yossi):
         final_url = f"{base_url}?{encoded_params}"
         time.sleep(1)
         response = requests.get(final_url, headers=headers)
-
+        max_current_date = unique_date_added[0]
         if response.status_code == 200:
             data = response.json()
             # How many new cars
             for d in data['data']['feed']['feed_items']:
                 try:
                     date_added = d.get('date_added')
-                    if date_added not in unique_date_added:
+                    if date_added and date_added > max_current_date:
                         if d.get('feed_source') == "private":
                             count = count + 1
                             TotalCheck = True
@@ -95,10 +94,9 @@ async def main(params, car_brand, bot, chat_id_yossi):
                         date_added = d['date_added']
                         Addid = "https://www.yad2.co.il/item/" + d['id']
                         if date_added not in unique_date_added:
-                            unique_date_added.add(date_added)
                             if hand == 'יד שניה' and prev_hand_v != 'פרטית':
                                 continue
-                            await send_message_async(bot, chat_id_yossi,
+                            await send_message_async(bot, chat_id,
                                 f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
 
                             media_items = []
@@ -112,7 +110,7 @@ async def main(params, car_brand, bot, chat_id_yossi):
                                 check = True
 
                             if check == True:
-                                await bot.send_media_group(chat_id=chat_id_yossi, media=media_items)
+                                await bot.send_media_group(chat_id=chat_id, media=media_items)
                 except (KeyError, ValueError):
                     pass
         else:
@@ -120,7 +118,9 @@ async def main(params, car_brand, bot, chat_id_yossi):
 
         # Save the updated unique_date_added to the JSON file
         with open(json_file_path, 'w') as json_file:
-            json.dump(list(unique_date_added), json_file)
+            dates = [datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in unique_date_added]
+            max_date = max(dates)
+            json.dump([max_date], json_file, default=str)
 
     return TotalCheck
 
