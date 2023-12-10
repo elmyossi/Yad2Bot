@@ -7,12 +7,12 @@ from io import BytesIO
 
 
 async def send_message_async(bot, chat_id, message_text):
-    await bot.send_message(chat_id=chat_id, text=message_text,parse_mode='Markdown')
+    await bot.send_message(chat_id=chat_id, text=message_text, parse_mode='Markdown')
     print("Message sent successfully!")
 
 
-async def main(params, car_brand,bot, chat_id_yossi):
-    TotalCheck=False
+async def main(params, car_brand, bot, chat_id_yossi):
+    TotalCheck = False
     json_file_path = 'unique_date_added.json'
     try:
         with open(json_file_path, 'r') as json_file:
@@ -51,7 +51,6 @@ async def main(params, car_brand,bot, chat_id_yossi):
         time.sleep(1)
         response = requests.get(final_url, headers=headers)
 
-
         if response.status_code == 200:
             data = response.json()
             # How many new cars
@@ -65,8 +64,7 @@ async def main(params, car_brand,bot, chat_id_yossi):
                 except (KeyError, ValueError):
                     pass
     # if count>0:
-        # await send_message_async(bot, chat_id_yossi, f'New cars of type *{car_brand}*: {count}')
-
+    # await send_message_async(bot, chat_id_yossi, f'New cars of type *{car_brand}*: {count}')
 
     for i in range(1):
         base_url = "https://gw.yad2.co.il/feed-search-legacy/vehicles/cars"
@@ -84,35 +82,38 @@ async def main(params, car_brand,bot, chat_id_yossi):
             # Process the JSON data as needed
             for d in data['data']['feed']['feed_items']:
                 try:
-                    if d['feed_source']=="private": # דירות לא מתיווך
+                    if d['feed_source'] == "private":  # דירות לא מתיווך
                         area = d['AreaID_text']
-                        price=d['price']
-                        km=d['kilometers']
-                        year=d['year']
-                        hand= d['Hand_text']
-                        prev_hand_k, prev_hand_v= d.get('more_details',{})[-2]['key'], d.get('more_details',{})[-2]['value']
-                        cur_hand_k, cur_hand_v = d.get('more_details', {})[-3]['key'], d.get('more_details', {})[-3]['value']
+                        price = d['price']
+                        km = d['kilometers']
+                        year = d['year']
+                        hand = d['Hand_text']
+                        prev_hand_k, prev_hand_v = d.get('more_details', {})[-2]['key'], d.get('more_details', {})[-2][
+                            'value']
+                        cur_hand_k, cur_hand_v = d.get('more_details', {})[-3]['key'], d.get('more_details', {})[-3][
+                            'value']
                         date_added = d['date_added']
-                        Addid="https://www.yad2.co.il/item/"+d['id']
+                        Addid = "https://www.yad2.co.il/item/" + d['id']
                         if date_added not in unique_date_added:
                             unique_date_added.add(date_added)
                             if hand == 'יד שניה' and prev_hand_v != 'פרטית':
                                 continue
-                            await send_message_async(bot, chat_id_yossi,f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
+                            await send_message_async(bot, chat_id_yossi,
+                                f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
 
                             media_items = []
                             check = False
                             for image in d['images']:
-                                image_url=d['images'][image]['src']
+                                image_url = d['images'][image]['src']
                                 responseImage = requests.get(image_url)
                                 image_bytes = BytesIO(responseImage.content)
-                                await bot.send_photo(chat_id=chat_id_yossi, photo=image_bytes)
+                                # await bot.send_photo(chat_id=chat_id_yossi, photo=image_bytes)
                                 media_items.append(InputMediaPhoto(media=image_bytes))
-                                check=True
+                                check = True
 
-                            if check==True:
+                            if check == True:
                                 await bot.send_media_group(chat_id=chat_id_yossi, media=media_items)
-                except (KeyError,ValueError):
+                except (KeyError, ValueError):
                     pass
         else:
             print(f"Request failed with status code: {response.status_code}")
@@ -122,8 +123,11 @@ async def main(params, car_brand,bot, chat_id_yossi):
             json.dump(list(unique_date_added), json_file)
 
     return TotalCheck
+
+
 if __name__ == "__main__":
     import asyncio
+
     loop = asyncio.get_event_loop()
 
     bot_token = '6410021064:AAHuHO1Q4EVcIhLD8nzWIv_qVINyuvgtouk'
@@ -172,16 +176,27 @@ if __name__ == "__main__":
         'ownerID': 1,
         'gearBox': 1,
     }
+    params_kia = {
+        'manufacturer': 48,
+        'model': 1653,
+        'year': '2016-2023',
+        'price': '0-71000',
+        'priceOnly': 1,
+        'km': '0-120000',
+        'hand': '0-2',
+        'ownerID': 1,
+        'gearBox': 1,
+    }
 
-    checkNew1=loop.run_until_complete(main(params_toyota,"Toyota" ,bot,chat_id_yossi))
-    checkNew1_amit=loop.run_until_complete(main(params_toyota,"Toyota" ,bot,chat_id_amit))
-    checkNew2=loop.run_until_complete(main(params_hyundai, "Hyundai",bot,chat_id_yossi))
-    checkNew2_amit=loop.run_until_complete(main(params_hyundai, "Hyundai",bot,chat_id_amit))
-    checkNew3=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_yossi))
-    checkNew3_amit=loop.run_until_complete(main(params_suzuki, "Suzuki",bot,chat_id_amit))
+    checkNew1 = loop.run_until_complete(main(params_toyota, "Toyota", bot, chat_id_yossi))
+    checkNew1_amit = loop.run_until_complete(main(params_toyota, "Toyota", bot, chat_id_amit))
+    checkNew2 = loop.run_until_complete(main(params_hyundai, "Hyundai", bot, chat_id_yossi))
+    checkNew2_amit = loop.run_until_complete(main(params_hyundai, "Hyundai", bot, chat_id_amit))
+    checkNew3 = loop.run_until_complete(main(params_suzuki, "Suzuki", bot, chat_id_yossi))
+    checkNew3_amit = loop.run_until_complete(main(params_suzuki, "Suzuki", bot, chat_id_amit))
+    checkNew4_yossi = loop.run_until_complete(main(params_kia, "Kia", bot, chat_id_yossi))
+    checkNew4_amit = loop.run_until_complete(main(params_kia, "Kia", bot, chat_id_amit))
 
     # if checkNew1==False and checkNew2==False and checkNew3==False and checkNew1_amit==False and checkNew2_amit==False and checkNew3_amit==False:
     #     loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין מכוניות חדשות*"))
     #     loop.run_until_complete(send_message_async(bot, chat_id_amit, "*אין מכוניות חדשות*"))
-
-
