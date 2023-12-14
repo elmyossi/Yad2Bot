@@ -36,5 +36,6 @@ jobs:
           git add Hyundai.json  # or git add -A to add all files
           git add Suzuki.json  # or git add -A to add all files
           git add Toyota.json  # or git add -A to add all files
+          git add Mazda.json  # or git add -A to add all files
           git diff-index --quiet HEAD || git commit -m "Updated json files"
           git push "https://${GITHUB_ACTOR}:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main || exit 0
