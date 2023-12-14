@@ -116,8 +116,7 @@ async def main(params, brand):
 
         # Save the updated unique_date_added to the JSON file
     with open(json_file_path, 'w') as json_file:
-        dates = [convert_str_to_date(d) for d in unique_date_added]
-        max_date = max(dates)
+        max_date = max(unique_date_added)
         json.dump([max_date], json_file, default=str)
 
     return TotalCheck
