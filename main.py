@@ -10,6 +10,12 @@ async def send_message_async(bot, chat_id, message_text):
     print("Message sent successfully!")
 
 
+def convert_str_to_date(date_as_str):
+    if not date_as_str:
+        return date_as_str
+    return datetime.strptime(date_as_str, "%Y-%m-%d %H:%M:%S")
+
+
 async def main(params, brand):
     bot_token = '6410021064:AAHuHO1Q4EVcIhLD8nzWIv_qVINyuvgtouk'
     bot = Bot(token=bot_token)
@@ -47,7 +53,8 @@ async def main(params, brand):
     }
     # How many new apartment
     count = 0
-    max_current_date = unique_date_added[0]
+    max_current_date_str = unique_date_added[0]
+    max_current_date = convert_str_to_date(max_current_date_str)
 
     base_url = "https://gw.yad2.co.il/feed-search-legacy/vehicles/cars"
     params['page'] = 0
@@ -64,7 +71,8 @@ async def main(params, brand):
     data = response.json()
     # Process the JSON data as needed
     for d in data['data']['feed']['feed_items']:
-        date_added = d.get('date_added')
+        date_added_str = d.get('date_added')
+        date_added = convert_str_to_date(date_added_str)
         try:
             if date_added and date_added > max_current_date:
                 unique_date_added.append(date_added)
@@ -80,36 +88,35 @@ async def main(params, brand):
                         'value']
                     cur_hand_k, cur_hand_v = d.get('more_details', {})[-3]['key'], d.get('more_details', {})[-3][
                         'value']
-                    date_added = d['date_added']
                     Addid = "https://www.yad2.co.il/item/" + d['id']
-                    if date_added and date_added > max_current_date:
-                        if hand == 'יד שניה' and prev_hand_v != 'פרטית':
-                            continue
-                        await send_message_async(bot, chat_id_yossi,
-                            f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
+                    if hand == 'יד שניה' and prev_hand_v != 'פרטית':
+                        continue
+                    await send_message_async(bot, chat_id_yossi,
+                                             f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
 
-                        await send_message_async(bot, chat_id_amit,
-                            f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
+                    await send_message_async(bot, chat_id_amit,
+                                             f' *איזור*: {area}, *מחיר*: {price}, *ק״מ*: {km} , *שנה*: {year}. *יד*:  {hand}, *{prev_hand_k}* {prev_hand_v}, *{cur_hand_k}* {cur_hand_v}. [קישור למודעה]({Addid}) ')
 
-                        media_items = []
-                        check = False
-                        for image in d['images']:
-                            image_url = d['images'][image]['src']
-                            responseImage = requests.get(image_url)
-                            image_bytes = BytesIO(responseImage.content)
-                            # await bot.send_photo(chat_id=chat_id_yossi, photo=image_bytes)
-                            media_items.append(InputMediaPhoto(media=image_bytes))
-                            check = True
+                    media_items = []
+                    check = False
+                    for image in d['images']:
+                        image_url = d['images'][image]['src']
+                        responseImage = requests.get(image_url)
+                        image_bytes = BytesIO(responseImage.content)
+                        # await bot.send_photo(chat_id=chat_id_yossi, photo=image_bytes)
+                        media_items.append(InputMediaPhoto(media=image_bytes))
+                        check = True
 
-                        if check == True:
-                            await bot.send_media_group(chat_id=chat_id_yossi, media=media_items)
-                            await bot.send_media_group(chat_id=chat_id_amit, media=media_items)
+                    if check == True:
+                        await bot.send_media_group(chat_id=chat_id_yossi, media=media_items)
+                        await bot.send_media_group(chat_id=chat_id_amit, media=media_items)
+
         except (KeyError, ValueError):
             pass
 
         # Save the updated unique_date_added to the JSON file
     with open(json_file_path, 'w') as json_file:
-        dates = [datetime.strptime(d, "%Y-%m-%d %H:%M:%S") for d in unique_date_added]
+        dates = [convert_str_to_date(d) for d in unique_date_added]
         max_date = max(dates)
         json.dump([max_date], json_file, default=str)
 
@@ -171,11 +178,23 @@ if __name__ == "__main__":
         'ownerID': 1,
         'gearBox': 1,
     }
+    params_mazda = {
+        'manufacturer': 27,
+        'model': 1645,
+        'year': '2016-2023',
+        'price': '0-71000',
+        'priceOnly': 1,
+        'km': '0-120000',
+        'hand': '0-2',
+        'ownerID': 1,
+        'gearBox': 1,
+    }
 
     checkNew1 = loop.run_until_complete(main(params_toyota, "Toyota"))
     checkNew2 = loop.run_until_complete(main(params_hyundai, "Hyundai"))
-    checkNew3_amit = loop.run_until_complete(main(params_suzuki, "Suzuki"))
-    checkNew4_amit = loop.run_until_complete(main(params_kia, "Kia"))
+    checkNew3 = loop.run_until_complete(main(params_suzuki, "Suzuki"))
+    checkNew4 = loop.run_until_complete(main(params_kia, "Kia"))
+    checkNew5 = loop.run_until_complete(main(params_kia, "Mazda"))
 
     # if checkNew1==False and checkNew2==False and checkNew3==False and checkNew1_amit==False and checkNew2_amit==False and checkNew3_amit==False:
     #     loop.run_until_complete(send_message_async(bot, chat_id_yossi, "*אין מכוניות חדשות*"))
