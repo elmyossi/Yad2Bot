@@ -30,7 +30,8 @@ async def main(params, brand):
         with open(json_file_path, 'r') as json_file:
             unique_date_added = json.load(json_file)
     except FileNotFoundError:
-        unique_date_added = []
+        print('file not found')
+        return
 
     headers = {
         'Accept': 'application/json, text/plain, */*',
@@ -55,6 +56,7 @@ async def main(params, brand):
     count = 0
     max_current_date_str = unique_date_added[0]
     max_current_date = convert_str_to_date(max_current_date_str)
+    all_dates_added = [max_current_date]
 
     base_url = "https://gw.yad2.co.il/feed-search-legacy/vehicles/cars"
     params['page'] = 0
@@ -75,7 +77,7 @@ async def main(params, brand):
         date_added = convert_str_to_date(date_added_str)
         try:
             if date_added and date_added > max_current_date:
-                unique_date_added.append(date_added)
+                all_dates_added.append(date_added)
                 if d['feed_source'] == "private":
                     count = count + 1
                     TotalCheck = True
@@ -114,9 +116,8 @@ async def main(params, brand):
         except (KeyError, ValueError):
             pass
 
-        # Save the updated unique_date_added to the JSON file
     with open(json_file_path, 'w') as json_file:
-        max_date = max(unique_date_added)
+        max_date = max(all_dates_added)
         json.dump([max_date], json_file, default=str)
 
     return TotalCheck
